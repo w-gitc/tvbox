@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Merge upstream
         run: |
@@ -25,6 +25,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git merge upstream/master --allow-unrelated-histories --no-edit
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/w-gitc/tvbox.git
           git push origin master
 
       # 自动部署到 Cloudflare Pages
