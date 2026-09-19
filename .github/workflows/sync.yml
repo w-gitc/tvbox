@@ -1,13 +1,10 @@
 name: Sync + Auto Deploy to CF Pages
-
 on:
   schedule:
     - cron: "0 */1 * * *"  # 每小时自动同步+部署
   workflow_dispatch:       # 手动也能触发
-
 permissions:
   contents: write
-
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -17,7 +14,6 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.PAT_TOKEN }}
-
       - name: Merge upstream
         run: |
           git remote add upstream https://github.com/qist/tvbox.git
@@ -27,14 +23,10 @@ jobs:
           git merge upstream/master --allow-unrelated-histories --no-edit
           git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/w-gitc/tvbox.git
           git push origin master
-
-      # 自动部署到 Cloudflare Pages
+      # 自动部署到 Cloudflare Pages（wrangler官方方案）
       - name: Deploy to CF Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: tvbox  # 你CF Pages的项目名
-          directory: ./      # 根目录
-          buildCommand: ""
-          branch: main   # 这里固定写 main！！！
+          command: pages deploy ./ --project-name=tvbox --branch=main
